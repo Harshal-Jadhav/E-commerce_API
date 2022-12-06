@@ -27,13 +27,13 @@ public class Cart {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer Id;
-	private Integer totalCartValue;
+	private Integer totalCartValue = 0;
 
-//	Relationships here
+	//	Relationships here
 	// 1. Customer Relationship
 	@OneToOne
 	private Customer customer;
-	
+
 	// 2. Details Relationship.
 	@OneToMany(mappedBy = "cart")
 	private List<OrderDetails> cartList = new ArrayList<>();

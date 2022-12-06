@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.project.Exceptions.RecordsNotFoundException;
+import com.project.Model.Admin;
 import com.project.Model.Customer;
 import com.project.Model.Orders;
 import com.project.Model.Product;
@@ -25,6 +26,12 @@ public class AdminController {
 
 	@Autowired
 	private AdminServices adminService;
+
+	@PostMapping("/add-admin")
+	public ResponseEntity<Admin> add_new_admin(@RequestParam String key, @RequestBody Admin ad) {
+		Admin admin = adminService.addNewAdmin(ad);
+		return new ResponseEntity<Admin>(admin, HttpStatus.CREATED);
+	}
 
 	@GetMapping("/all-products/")
 	public ResponseEntity<List<Product>> get_all_products(@RequestParam String key) throws RecordsNotFoundException{

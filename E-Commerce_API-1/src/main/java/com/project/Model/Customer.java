@@ -1,6 +1,7 @@
 package com.project.Model;
 
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
@@ -37,14 +38,14 @@ public class Customer {
 	@Embedded
 	private Address address;
 
-//	Relationships Starts Here.
-	
+	//	Relationships Starts Here.
+
 	// 1. Cart Relationship.
-	@OneToOne(mappedBy = "customer")
+	@OneToOne(cascade = CascadeType.ALL, mappedBy = "customer")
 	private Cart cart;
 
 	// 2.Orders Relationship.
-//	private List<Orders> list = new ArrayList<>();
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "customer")
-	private Stack<Orders> orderList = new Stack<Orders>();
+	private List<Orders> orderList = new ArrayList<>();
+	//	private Stack<Orders> orderList = new Stack<Orders>();
 }

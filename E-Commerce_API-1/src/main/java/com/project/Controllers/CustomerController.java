@@ -1,6 +1,6 @@
 package com.project.Controllers;
 
-import java.util.Stack;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,15 +37,16 @@ public class CustomerController {
 	}
 
 	@GetMapping("payment")
-	public ResponseEntity<Stack<Orders>> make_purchase(@RequestParam String key, @RequestParam Integer paymentId) throws RecordsNotFoundException {
-		Stack<Orders> orders = customerService.makePurchace(key, paymentId);
-		return new ResponseEntity<Stack<Orders>>(orders,HttpStatus.OK);
+	public ResponseEntity<List<Orders>> make_purchase(@RequestParam String key, @RequestParam Integer paymentId)
+			throws RecordsNotFoundException {
+		List<Orders> orders = customerService.makePurchace(key, paymentId);
+		return new ResponseEntity<List<Orders>>(orders, HttpStatus.OK);
 	}
 
 	@GetMapping("all-orders")
-	public ResponseEntity<Stack<Orders>> getAllOrders(@RequestParam String key) throws RecordsNotFoundException {
-		Stack<Orders> orders = customerService.seeAllOrders(key);
-		return new ResponseEntity<Stack<Orders>>(orders,HttpStatus.OK);
+	public ResponseEntity<List<Orders>> getAllOrders(@RequestParam String key) throws RecordsNotFoundException {
+		List<Orders> orders = customerService.seeAllOrders(key);
+		return new ResponseEntity<List<Orders>>(orders, HttpStatus.OK);
 	}
 
 	@GetMapping("orderId")

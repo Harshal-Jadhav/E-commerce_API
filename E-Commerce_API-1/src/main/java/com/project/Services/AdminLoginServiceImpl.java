@@ -14,7 +14,7 @@ import com.project.Repositories.SessionRepo;
 
 import net.bytebuddy.utility.RandomString;
 
-@Service
+@Service(value = "admin")
 public class AdminLoginServiceImpl implements LoginService {
 	@Autowired
 	private AdminRepo aRepo;
@@ -24,14 +24,11 @@ public class AdminLoginServiceImpl implements LoginService {
 	@Override
 	public String LoginToAccount(LoginDTO loginDTO) throws RecordsNotFoundException {
 		Admin existingAdmin = aRepo.findByPhone(loginDTO.getMobile());
-		if (existingAdmin == null) {
+		if (existingAdmin == null)
 			throw new RecordsNotFoundException("please enter valid mobile number");
-
-		}
 		Optional<CurrentUserSession> validAdminSessionOpt = sRepo.findById(existingAdmin.getPhone());
-		if (validAdminSessionOpt.isPresent()) {
+		if (validAdminSessionOpt.isPresent())
 			throw new RecordsNotFoundException("User already logged in with this number");
-		}
 		if (existingAdmin.getPassword().equals(loginDTO.getPassword())) {
 			String key = RandomString.make(6);
 			CurrentUserSession currentUserSession = new CurrentUserSession();
@@ -39,17 +36,16 @@ public class AdminLoginServiceImpl implements LoginService {
 			currentUserSession.setMobile(existingAdmin.getPhone());
 			sRepo.save(currentUserSession);
 			return key;
-		} else {
+		} else
 			throw new RecordsNotFoundException("please enter valid password");
-		}
 	}
 
 	@Override
 	public String LogOutFromAccount(String Key) throws RecordsNotFoundException {
 		CurrentUserSession currentUserSession = sRepo.findByKey(Key);
-		if (currentUserSession == null) {
+		if (currentUserSession == null)
 			throw new RecordsNotFoundException("user not logged in with this number");
-		} else {
+		else {
 			sRepo.delete(currentUserSession);
 			return "logged out !";
 		}

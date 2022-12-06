@@ -3,11 +3,15 @@ package com.project.Services;
 import java.util.List;
 
 import com.project.Exceptions.RecordsNotFoundException;
+import com.project.Model.Admin;
 import com.project.Model.Customer;
 import com.project.Model.Orders;
 import com.project.Model.Product;
 
 public interface AdminServices {
+
+	// Method to add admin;
+	public Admin addNewAdmin(Admin admin);
 
 	// Method to see All the products
 	public List<Product> getAllProducts(String key) throws RecordsNotFoundException;
@@ -40,7 +44,7 @@ public interface AdminServices {
 
 	// GetOrders by Status;
 	public List<Orders> getOrdersByStatus(String key, String message) throws RecordsNotFoundException;
-	
+
 	//Method to get all Customers;
 	public List<Customer> getAllCustomers(String key) throws RecordsNotFoundException;
 
@@ -49,9 +53,9 @@ public interface AdminServices {
 	// Method to return Sales made today;
 	public Integer salesMadeToday(String key) throws RecordsNotFoundException;
 
-//	// Method to return Sales made Last weel;
-//	public Integer salesMadeLastWeek();
-//
-//	// Method to return Sales made Last month;
-//	public Integer salesMageLastMonth();
+	//	// Method to return Sales made Last weel;
+	//	public Integer salesMadeLastWeek();
+	//
+	//	// Method to return Sales made Last month;
+	//	public Integer salesMageLastMonth();
 }

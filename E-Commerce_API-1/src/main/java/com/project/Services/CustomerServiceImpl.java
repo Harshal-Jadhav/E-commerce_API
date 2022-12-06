@@ -4,7 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Stack;
+
+import javax.security.auth.login.LoginException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,25 +45,45 @@ public class CustomerServiceImpl implements CustomerServices {
 	private SessionRepo sRepo;
 
 	@Override
+	public Customer addNewCustomer(Customer customer) throws LoginException {
+
+		Customer c1 = customerRepo.findByPhone(customer.getPhone());
+		Customer c2 = customerRepo.findByEmail(customer.getEmail());
+
+		if (c1 != null)
+			throw new LoginException("User already exist with this phone no.");
+		if (c2 != null)
+			throw new LoginException("User alredy exist with this email");
+
+		Cart cart = new Cart();
+		Cart savedCart = cartRepo.save(cart);
+		customer.setCart(savedCart);
+		Customer savedCustomer = customerRepo.save(customer);
+		savedCart.setCustomer(savedCustomer);
+		cartRepo.save(savedCart);
+		return savedCustomer;
+	}
+
+	@Override
 	public Cart addProductToCart(String key, Integer productId, Integer quantity)
 			throws RecordsNotFoundException {
 		CurrentUserSession activeSession = sRepo.findByKey(key);
 
 		if (activeSession == null)
 			throw new RecordsNotFoundException("No active session found.");
-			
+
 		//Getting the customer.
 		Customer customer = customerRepo.findByPhone(activeSession.getMobile());
 
 		// Getting the product
 		Optional<Product> product = productRepo.findById(productId);
-		
+
 		if (customer == null)
 			throw new RecordsNotFoundException("Invalid customer id.");
 
 		if (!product.isPresent())
 			throw new RecordsNotFoundException("Invalid product Id.");
-		
+
 		if (product.get().getStock() == 0)
 			throw new RecordsNotFoundException("Product Out Of Stock");
 
@@ -76,7 +97,7 @@ public class CustomerServiceImpl implements CustomerServices {
 		od.setProduct(product.get());
 		od.setQuantity(quantity);
 		od.setTotalValue((int) (quantity * product.get().getProductSellingPrice()));
-		
+
 		OrderDetails savedOrderDetails = odRepo.save(od);
 
 		customer.getCart().getCartList().add(savedOrderDetails);
@@ -99,8 +120,8 @@ public class CustomerServiceImpl implements CustomerServices {
 	}
 
 	@Override
-	public Stack<Orders> makePurchace(String key, Integer paymentId) throws RecordsNotFoundException {
-		
+	public List<Orders> makePurchace(String key, Integer paymentId) throws RecordsNotFoundException {
+
 		CurrentUserSession activeSession = sRepo.findByKey(key);
 
 		if (activeSession == null)
@@ -108,7 +129,7 @@ public class CustomerServiceImpl implements CustomerServices {
 
 		// Getting the customer.
 		Customer customer = customerRepo.findByPhone(activeSession.getMobile());
-		
+
 		//Getting the payment Object;
 		Optional<Payment> payment = payRepo.findById(paymentId);
 
@@ -119,8 +140,9 @@ public class CustomerServiceImpl implements CustomerServices {
 		List<OrderDetails> cartList = customer.getCart().getCartList();
 
 		// Getting the Orders Stack;
-		Stack<Orders> orders = customer.getOrderList();
-		
+		List<Orders> orders = customer.getOrderList();
+		//		Stack<Orders> orders = customer.getOrderList();
+
 		Orders order = new Orders();
 
 		// Setting up the order variable;
@@ -134,33 +156,33 @@ public class CustomerServiceImpl implements CustomerServices {
 			order.getOrderDetails().add(od);
 			totalValue += od.getTotalValue();
 		}
-		
+
 		order.setOrderDate(LocalDateTime.now());
 		order.setOrderStatus("Order Confirmed, Yet to be Shipped.");
 		order.setPayment(payment.get());
 		order.setTotalOrderValue(totalValue);
 		order.setCustomer(customer);
 
-		customer.getOrderList().push(order);
+		customer.getOrderList().add(order);
 		customer.getCart().setCartList(new ArrayList<>());
 		payment.get().getOrder().add(order);
-		
+
 		orderRepo.save(order);
 		Customer savedCustomer = customerRepo.save(customer);
 		cartRepo.save(customer.getCart());
 		payRepo.save(payment.get());
-		
+
 		return savedCustomer.getOrderList();
 	}
 
 	@Override
-	public Stack<Orders> seeAllOrders(String key) throws RecordsNotFoundException {
+	public List<Orders> seeAllOrders(String key) throws RecordsNotFoundException {
 		// Getting the customer.
 		CurrentUserSession activeSession = sRepo.findByKey(key);
 
 		if (activeSession == null)
 			throw new RecordsNotFoundException("No active session found.");
-			
+
 		//Getting the customer.
 		Customer customer = customerRepo.findByPhone(activeSession.getMobile());
 
@@ -181,12 +203,14 @@ public class CustomerServiceImpl implements CustomerServices {
 
 		if (customer == null)
 			throw new RecordsNotFoundException("Invalid Customer Id");
-		
+
 		if (!order.isPresent() || order.get().getCustomer().getId() != customer.getId())
 			throw new RecordsNotFoundException("Invalid Order Id");
 
 		return order.get();
 
 	}
+
+
 
 }

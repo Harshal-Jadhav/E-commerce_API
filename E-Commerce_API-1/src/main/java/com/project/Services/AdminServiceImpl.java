@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.project.Exceptions.RecordsNotFoundException;
 import com.project.Model.Admin;
@@ -24,6 +25,7 @@ import com.project.Repositories.PaymentRepo;
 import com.project.Repositories.ProductRepo;
 import com.project.Repositories.SessionRepo;
 
+@Service
 public class AdminServiceImpl implements AdminServices {
 
 	@Autowired
@@ -44,6 +46,12 @@ public class AdminServiceImpl implements AdminServices {
 	private AdminRepo aRepo;
 
 	@Override
+	public Admin addNewAdmin(Admin admin) {
+		Admin ad = aRepo.save(admin);
+		return ad;
+	}
+
+	@Override
 	public List<Product> getAllProducts(String key) throws RecordsNotFoundException {
 
 		CurrentUserSession activeSession = sRepo.findByKey(key);
@@ -55,7 +63,7 @@ public class AdminServiceImpl implements AdminServices {
 
 		if (admin == null)
 			throw new RecordsNotFoundException("Access restricted.");
-		
+
 		List<Product> productList = productRepo.findAll();
 
 		if (productList.size() == 0)
@@ -102,20 +110,27 @@ public class AdminServiceImpl implements AdminServices {
 
 		Product p = product.get();
 
-		if (name != null)
+		if (name != null) {
 			p.setProductName(name);
-		if (des != null)
+		}
+		if (des != null) {
 			p.setProductDescription(des);
-		if (brand != null)
+		}
+		if (brand != null) {
 			p.setProductBrand(brand);
-		if (rating != null)
+		}
+		if (rating != null) {
 			p.setRating(rating);
-		if (mPrice != null)
+		}
+		if (mPrice != null) {
 			p.setProductMarketPrice(mPrice);
-		if (sPrice != null)
+		}
+		if (sPrice != null) {
 			p.setProductSellingPrice(sPrice);
-		if (stock != null)
+		}
+		if (stock != null) {
 			p.setStock(stock);
+		}
 
 		Product updated = productRepo.save(p);
 
@@ -162,7 +177,7 @@ public class AdminServiceImpl implements AdminServices {
 
 	@Override
 	public Orders updateStatusOfOrders(String key, Integer orderId, String message) throws RecordsNotFoundException {
-		
+
 		CurrentUserSession activeSession = sRepo.findByKey(key);
 
 		if (activeSession == null)
@@ -172,10 +187,10 @@ public class AdminServiceImpl implements AdminServices {
 		if (admin == null)
 			throw new RecordsNotFoundException("Access restricted.");
 		Optional<Orders> order = orderRepo.findById(orderId);
-		
+
 		if (!order.isPresent())
 			throw new RecordsNotFoundException("Invali Order Id");
-		
+
 		order.get().setOrderStatus(message);
 
 		Orders updated = orderRepo.save(order.get());
@@ -195,7 +210,7 @@ public class AdminServiceImpl implements AdminServices {
 		if (admin == null)
 			throw new RecordsNotFoundException("Access restricted.");
 		Optional<Customer> customer = customerRepo.findById(customerId);
-		
+
 		if (!customer.isPresent())
 			throw new RecordsNotFoundException("Invalid Customer Id.");
 
@@ -222,7 +237,7 @@ public class AdminServiceImpl implements AdminServices {
 			throw new RecordsNotFoundException("Access restricted.");
 		if (customer == null)
 			throw new RecordsNotFoundException("Customer not found with given Id");
-		
+
 		List<Orders> ordersList = new ArrayList<>(customer.getOrderList());
 		Collections.reverse(ordersList);
 
@@ -243,7 +258,7 @@ public class AdminServiceImpl implements AdminServices {
 		if (admin == null)
 			throw new RecordsNotFoundException("Access restricted.");
 		Customer customer = customerRepo.findByEmail(email);
-		
+
 		if (customer == null)
 			throw new RecordsNotFoundException("Customer not found with given Id");
 
@@ -256,7 +271,7 @@ public class AdminServiceImpl implements AdminServices {
 
 	@Override
 	public List<Orders> getOrdersByStatus(String key, String message) throws RecordsNotFoundException {
-		
+
 		CurrentUserSession activeSession = sRepo.findByKey(key);
 
 		if (activeSession == null)
@@ -266,10 +281,10 @@ public class AdminServiceImpl implements AdminServices {
 		if (admin == null)
 			throw new RecordsNotFoundException("Access restricted.");
 		List<Orders> orderList = orderRepo.findByOrderStatus(message);
-		
+
 		if (orderList.size() == 0)
 			throw new RecordsNotFoundException("No Orders Found");
-		
+
 		return orderList;
 
 	}
@@ -306,20 +321,22 @@ public class AdminServiceImpl implements AdminServices {
 		if (admin == null)
 			throw new RecordsNotFoundException("Access restricted.");
 		Integer val = orderRepo.findTotalValueForToday(LocalDate.now());
-		
+
 		return null;
 	}
 
-//	@Override
-//	public Integer salesMadeLastWeek() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	public Integer salesMageLastMonth() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+
+
+	//	@Override
+	//	public Integer salesMadeLastWeek() {
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
+	//
+	//	@Override
+	//	public Integer salesMageLastMonth() {
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
 
 }
